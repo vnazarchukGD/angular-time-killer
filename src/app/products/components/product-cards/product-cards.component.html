@@ -1,0 +1,17 @@
+<div class="product-list">
+    <div *ngIf="loading" class="loading-shade">
+        <mat-spinner></mat-spinner>
+    </div>
+    <tk-product
+      *ngFor="let product of products"
+      class="product-list__item"
+      [product]="product"
+      (click)="productDetails.emit(product)"
+    ></tk-product>
+  </div>
+  <mat-paginator
+    [length]="totalNumber"
+    [pageIndex]="pageIndex"
+    [pageSize]="10"
+    (page)="pageChange.emit($event.pageIndex)"
+  ></mat-paginator>
