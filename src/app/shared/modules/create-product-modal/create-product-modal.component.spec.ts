@@ -1,7 +1,12 @@
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick
+} from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDialogHarness } from '@angular/material/dialog/testing';
 import { MatFormFieldHarness } from '@angular/material/form-field/testing';
@@ -39,6 +44,19 @@ describe('CreateProductModalComponent', () => {
   const validInputs = {
     name: 'test-name',
     picture: 'https://www.royal-canin.ru/upload/iblock/117/avstr.ovcharka2.jpg',
+    description: 'test-description-test-description',
+    counts: [
+      {
+        location: 'test-location1',
+        quantityAvailable: 24,
+        price: 9
+      }
+    ]
+  };
+
+  const requiredValidInputs = {
+    name: 'test-name',
+    picture: 'https://www.royal-canin.ru/upload/iblock/117/avstr.ovcharka2.jpg',
     description: 'test-description-test-description'
   };
 
@@ -74,8 +92,13 @@ describe('CreateProductModalComponent', () => {
     expect(await harness.nameFormField()).toBeTruthy();
     expect(await harness.pictureUrlFormField()).toBeTruthy();
     expect(await harness.descriptionFormField()).toBeTruthy();
+    expect(await harness.locationFormField()).toBeTruthy();
+    expect(await harness.quantityAvailableFormField).toBeTruthy();
+    expect(await harness.priceFormField).toBeTruthy();
     expect(await harness.getCreateBtn()).toBeTruthy();
     expect(await harness.getCancelBtn()).toBeTruthy();
+    expect(await harness.getAddNewCountsRecordBtn).toBeTruthy();
+    expect(await harness.getRemoveCountsRecordBtn).toBeTruthy();
   });
 
   describe('Cancel Button', () => {
@@ -116,6 +139,41 @@ describe('CreateProductModalComponent', () => {
 
       await pictureUrlInput.setValue(validInputs.picture);
       await pictureUrlInput.blur();
+      await harness.cancelBtnClick();
+
+      expect(await isDialogOpen()).toBeTrue();
+    });
+
+    it('should leave dialog open on cancel btn click if not confirmed', async () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+      const locationUrlInput = await harness.locationInput();
+
+      await locationUrlInput.setValue(validInputs.counts[0].location);
+      await locationUrlInput.blur();
+      await harness.cancelBtnClick();
+
+      expect(await isDialogOpen()).toBeTrue();
+    });
+
+    it('should leave dialog open on cancel btn click if not confirmed', async () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+      const priceUrlInput = await harness.priceInput();
+
+      await priceUrlInput.setValue(validInputs.counts[0].price);
+      await priceUrlInput.blur();
+      await harness.cancelBtnClick();
+
+      expect(await isDialogOpen()).toBeTrue();
+    });
+
+    it('should leave dialog open on cancel btn click if not confirmed', async () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+      const quantityAvailableUrlInput = await harness.quantityAvailableInput();
+
+      await quantityAvailableUrlInput.setValue(
+        validInputs.counts[0].quantityAvailable
+      );
+      await quantityAvailableUrlInput.blur();
       await harness.cancelBtnClick();
 
       expect(await isDialogOpen()).toBeTrue();
@@ -312,6 +370,34 @@ describe('CreateProductModalComponent', () => {
           component.dialogRef.componentInstance.formValues.description
         ).toBe('test test');
       });
+    });
+
+    describe('Create new Location Btn', () => {
+      it('should add new  record to counts property - form', fakeAsync(() => {
+        fixture.detectChanges();
+        spyOn(component.dialogRef.componentInstance, 'addCountsRecord');
+        harness.addNewCountsRecordBtnClick();
+        tick();
+        fixture.detectChanges();
+
+        expect(
+          component.dialogRef.componentInstance.addCountsRecord
+        ).toHaveBeenCalled();
+      }));
+    });
+
+    describe('Remove location Btn', () => {
+      it('should remove record from counts property - form', fakeAsync(() => {
+        fixture.detectChanges();
+        spyOn(component.dialogRef.componentInstance, 'removeCountsRecord');
+        harness.removeCountsRecordBtnClick();
+        tick();
+        fixture.detectChanges();
+
+        expect(
+          component.dialogRef.componentInstance.removeCountsRecord
+        ).toHaveBeenCalled();
+      }));
     });
   });
 });

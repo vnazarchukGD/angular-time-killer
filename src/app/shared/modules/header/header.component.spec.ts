@@ -217,7 +217,14 @@ describe('Header', () => {
       name: 'test-name',
       picture:
         'https://www.royal-canin.ru/upload/iblock/117/avstr.ovcharka2.jpg',
-      description: 'test-description-test-description'
+      description: 'test-description-test-description',
+      counts: [
+        {
+          location: 'test-location1',
+          quantityAvailable: 24,
+          price: 9
+        }
+      ]
     };
 
     it('should open create product modal on create product btn click', async () => {
